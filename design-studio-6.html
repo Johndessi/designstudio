@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>DesignStudio</title>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0a0f;--s1:#111118;--s2:#18181f;--s3:#202028;
+  --border:#2a2a36;--accent:#e63946;--a2:#ff6b6b;
+  --gold:#f4d03f;--blue:#4ecdc4;
+  --text:#f0f0f5;--muted:#5a5a72;--green:#2ecc71;
+}
+html,body{height:100%;overflow:hidden}
+body{font-family:system-ui,sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column;height:100dvh}
+*::-webkit-scrollbar{width:3px}*::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+/* HEADER */
+header{background:var(--s1);border-bottom:1px solid var(--border);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.brand{display:flex;align-items:center;gap:8px}
+.brand-icon{width:28px;height:28px;border-radius:6px;background:linear-gradient(135deg,var(--accent),var(--a2));display:flex;align-items:center;justify-content:center;font-size:14px}
+.brand-name{font-family:Impact,Arial Black,sans-serif;font-size:18px;letter-spacing:2px;color:var(--text)}
+.brand-sub{font-size:8px;color:var(--muted);letter-spacing:3px;margin-top:-2px}
+/* CANVAS AREA */
+#cvwrap{background:#000;flex-shrink:0;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
+#mainCanvas{display:block;max-width:100%;max-height:220px}
+#cvoverlay{position:absolute;inset:0;pointer-events:none;display:flex;align-items:flex-end;justify-content:flex-end;padding:8px}
+.cv-badge{background:rgba(0,0,0,.7);border-radius:4px;padding:3px 8px;font-size:9px;color:var(--accent);letter-spacing:2px;font-weight:700}
+/* TOOLBAR */
+#toolbar{background:var(--s1);border-bottom:1px solid var(--border);display:flex;overflow-x:auto;padding:6px 10px;gap:5px;flex-shrink:0}
+#toolbar::-webkit-scrollbar{height:2px}
+.tool{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 10px;border-radius:6px;cursor:pointer;border:1px solid transparent;transition:all .15s;flex-shrink:0}
+.tool:hover,.tool.on{background:var(--s3);border-color:var(--border)}
+.tool.on{border-color:var(--accent)}
+.tool-icon{font-size:16px}
+.tool-lbl{font-size:8px;color:var(--muted);letter-spacing:1px;font-weight:600}
+.tool.on .tool-lbl{color:var(--accent)}
+/* TABS */
+#tabs{display:flex;background:var(--s1);border-bottom:1px solid var(--border);flex-shrink:0;overflow-x:auto}
+#tabs::-webkit-scrollbar{height:2px}
+.tab{flex:0 0 auto;padding:9px 12px;background:none;border:none;border-bottom:2px solid transparent;color:var(--muted);cursor:pointer;font-family:inherit;font-size:9px;font-weight:700;letter-spacing:.5px;transition:all .2s;white-space:nowrap}
+.tab.on{border-bottom-color:var(--accent);color:var(--accent)}
+/* CONTENT */
+#cont{flex:1;overflow-y:auto;padding:12px}
+.pnl{display:none}.pnl.on{display:block}
+/* FORM */
+.fg{margin-bottom:13px}
+.fl{font-size:10px;color:var(--muted);letter-spacing:2px;display:block;margin-bottom:5px;font-weight:600}
+.fi{width:100%;background:var(--s2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:inherit;font-size:13px;padding:8px 10px}
+.fi:focus{outline:1px solid var(--accent)}
+/* BTNS */
+.btn{font-family:inherit;border:none;border-radius:6px;font-weight:700;font-size:11px;cursor:pointer;transition:all .15s;padding:8px 12px}
+.btn:active{transform:scale(.97)}
+.ba{background:var(--accent);color:#fff}
+.bd{background:var(--s2);border:1px solid var(--border);color:var(--text)}
+.bg{background:transparent;border:1px solid var(--border);color:var(--muted)}
+/* FORMAT GRID */
+.fmts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.fmt{background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:11px 10px;cursor:pointer;transition:all .15s;text-align:center}
+.fmt:active{transform:scale(.97)}
+.fmt.on{border-color:var(--accent);background:rgba(230,57,70,.08)}
+.fmt-icon{font-size:22px;margin-bottom:4px}
+.fmt-name{font-size:11px;font-weight:700;color:var(--text)}
+.fmt-size{font-size:9px;color:var(--muted);letter-spacing:1px;margin-top:2px}
+/* TEMPLATES */
+.tmpl-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.tmpl{border-radius:7px;overflow:hidden;cursor:pointer;border:2px solid transparent;transition:all .15s;aspect-ratio:16/9;position:relative}
+.tmpl.sq{aspect-ratio:1}
+.tmpl.on{border-color:var(--accent)}
+.tmpl canvas{width:100%;height:100%;display:block}
+/* COLOR PALETTE */
+.palette{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.swatch{width:30px;height:30px;border-radius:6px;cursor:pointer;border:2px solid transparent;transition:all .15s;flex-shrink:0}
+.swatch:active{transform:scale(.9)}
+.swatch.on{border-color:var(--text)}
+/* GRADIENT PRESETS */
+.grads{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px}
+.grad{height:36px;border-radius:6px;cursor:pointer;border:2px solid transparent;transition:all .15s}
+.grad.on{border-color:var(--text)}
+/* TEXT STYLES */
+.txtstyles{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px}
+.txts{background:var(--s2);border:1px solid var(--border);border-radius:6px;padding:10px;cursor:pointer;text-align:center;transition:all .15s}
+.txts.on{border-color:var(--accent)}
+/* LAYER ITEM */
+.layer{background:var(--s2);border:1px solid var(--border);border-radius:6px;padding:8px 10px;display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer;transition:all .15s}
+.layer.on{border-color:var(--accent);background:rgba(230,57,70,.05)}
+.layer-icon{font-size:16px;flex-shrink:0}
+.layer-info{flex:1;min-width:0}
+.layer-name{font-size:11px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.layer-type{font-size:9px;color:var(--muted);letter-spacing:1px}
+/* NOTIF */
+#notif{display:none;position:fixed;top:10px;left:50%;transform:translateX(-50%);z-index:99;border-radius:5px;padding:7px 14px;font-size:11px;font-weight:700;letter-spacing:.5px;white-space:nowrap;animation:fn .2s ease;max-width:90vw;text-align:center}
+@keyframes fn{from{opacity:0;transform:translateX(-50%) translateY(-8px)}to{opacity:1;transform:translateX(-50%)}}
+input[type=range]{accent-color:var(--accent);width:100%}
+input[type=color]{border:none;padding:2px;border-radius:4px;cursor:pointer;height:32px}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="brand">
+    <div class="brand-icon">🎨</div>
+    <div><div class="brand-name">DesignStudio</div><div class="brand-sub">CRÉATEUR VISUEL</div></div>
+  </div>
+  <div style="display:flex;gap:6px">
+    <button class="btn bd" onclick="document.getElementById('bgimg').click()" style="font-size:10px;padding:7px 10px">🖼 IMAGE</button>
+    <button class="btn ba" onclick="exportImg()" style="font-size:11px">⬇ EXPORT</button>
+  </div>
+  <input type="file" id="bgimg" accept="image/*" style="display:none">
+</canvas>
+</header>
+
+<!-- CANVAS -->
+<div id="cvwrap">
+  <canvas id="mainCanvas"></canvas>
+  <div id="cvoverlay"><div class="cv-badge" id="cvbadge">1280 × 720</div></div>
+</div>
+
+<!-- TOOLBAR -->
+<div id="toolbar">
+  <div class="tool on" data-tool="select" onclick="setTool(this,'select')">
+    <span class="tool-icon">↖</span><span class="tool-lbl">SELECT</span></div>
+  <div class="tool" data-tool="text" onclick="setTool(this,'text')">
+    <span class="tool-icon">T</span><span class="tool-lbl">TEXTE</span></div>
+  <div class="tool" data-tool="shape" onclick="setTool(this,'shape')">
+    <span class="tool-icon">◻</span><span class="tool-lbl">FORME</span></div>
+  <div class="tool" data-tool="image" onclick="setTool(this,'image')">
+    <span class="tool-icon">🖼</span><span class="tool-lbl">IMAGE</span></div>
+  <div class="tool" data-tool="bg" onclick="setTool(this,'bg');switchTab('bg')">
+    <span class="tool-icon">🎨</span><span class="tool-lbl">FOND</span></div>
+  <div class="tool" data-tool="undo" onclick="undo()">
+    <span class="tool-icon">↩</span><span class="tool-lbl">ANNULER</span></div>
+  <div class="tool" data-tool="clear" onclick="clearLayers()">
+    <span class="tool-icon">🗑</span><span class="tool-lbl">VIDER</span></div>
+</div>
+
+<!-- TABS -->
+<div id="tabs">
+  <button class="tab on" data-t="format">📐 FORMAT</button>
+  <button class="tab" data-t="tmpl">✨ TEMPLATES</button>
+  <button class="tab" data-t="bg">🎨 FOND</button>
+  <button class="tab" data-t="text">✏️ TEXTE</button>
+  <button class="tab" data-t="layers">📋 CALQUES</button>
+  <button class="tab" data-t="ai">🤖 IA</button>
+</div>
+
+<!-- CONTENT -->
+<div id="cont">
+
+  <!-- FORMAT -->
+  <div class="pnl on" id="pnl-format">
+    <div style="font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:10px;font-weight:600">CHOISIR LE FORMAT</div>
+    <div class="fmts">
+      <div class="fmt on" onclick="setFormat(this,1280,720,'YouTube Miniature')">
+        <div class="fmt-icon">▶</div>
+        <div class="fmt-name">Miniature YT</div>
+        <div class="fmt-size">1280 × 720</div>
+      </div>
+      <div class="fmt" onclick="setFormat(this,2560,1440,'Bannière YouTube')">
+        <div class="fmt-icon">📺</div>
+        <div class="fmt-name">Bannière YT</div>
+        <div class="fmt-size">2560 × 1440</div>
+      </div>
+      <div class="fmt" onclick="setFormat(this,820,312,'Bannière Facebook')">
+        <div class="fmt-icon">📘</div>
+        <div class="fmt-name">Bannière FB</div>
+        <div class="fmt-size">820 × 312</div>
+      </div>
+      <div class="fmt" onclick="setFormat(this,1500,500,'Bannière Twitter')">
+        <div class="fmt-icon">🐦</div>
+        <div class="fmt-name">Bannière X</div>
+        <div class="fmt-size">1500 × 500</div>
+      </div>
+      <div class="fmt" onclick="setFormat(this,1584,396,'Bannière LinkedIn')">
+        <div class="fmt-icon">💼</div>
+        <div class="fmt-name">Bannière LI</div>
+        <div class="fmt-size">1584 × 396</div>
+      </div>
+      <div class="fmt" onclick="setFormat(this,400,400,'Photo de Profil')">
+        <div class="fmt-icon">👤</div>
+        <div class="fmt-name">Photo Profil</div>
+        <div class="fmt-size">400 × 400</div>
+      </div>
+      <div class="fmt" onclick="setFormat(this,1080,1080,'Post Instagram')">
+        <div class="fmt-icon">📷</div>
+        <div class="fmt-name">Post IG Carré</div>
+        <div class="fmt-size">1080 × 1080</div>
+      </div>
+      <div class="fmt" onclick="setFormat(this,1080,1920,'Story/Reel')">
+        <div class="fmt-icon">📱</div>
+        <div class="fmt-name">Story / Reel</div>
+        <div class="fmt-size">1080 × 1920</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TEMPLATES -->
+  <div class="pnl" id="pnl-tmpl">
+    <div style="font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:10px;font-weight:600">TEMPLATES RAPIDES</div>
+    <div class="tmpl-grid" id="tmplGrid"></div>
+  </div>
+
+  <!-- FOND -->
+  <div class="pnl" id="pnl-bg">
+    <div class="fg">
+      <label class="fl">TYPE DE FOND</label>
+      <div style="display:flex;gap:6px;margin-bottom:12px">
+        <button class="btn ba" onclick="setBgType('solid')" id="bsolid" style="flex:1;font-size:10px">Uni</button>
+        <button class="btn bd" onclick="setBgType('gradient')" id="bgrad" style="flex:1;font-size:10px">Dégradé</button>
+        <button class="btn bd" onclick="setBgType('image')" id="bimg" style="flex:1;font-size:10px">Image</button>
+      </div>
+    </div>
+    <div id="bgsolid">
+      <label class="fl">COULEUR</label>
+      <div class="palette" id="bgpalette"></div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <input type="color" id="bgcolorpick" value="#1a1a2e" onchange="setBgColor(this.value)" style="width:44px;height:36px">
+        <input class="fi" id="bghex" value="#1a1a2e" style="flex:1" onchange="setBgColor(this.value)" placeholder="#hex">
+      </div>
+    </div>
+    <div id="bggradient" style="display:none">
+      <label class="fl">DÉGRADÉS PRÉDÉFINIS</label>
+      <div class="grads" id="gradPresets"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+        <div><label class="fl">COULEUR 1</label><input type="color" id="gc1" value="#e63946" style="width:100%;height:36px" onchange="applyGradient()"></div>
+        <div><label class="fl">COULEUR 2</label><input type="color" id="gc2" value="#4ecdc4" style="width:100%;height:36px" onchange="applyGradient()"></div>
+      </div>
+      <div class="fg">
+        <label class="fl">DIRECTION</label>
+        <div style="display:flex;gap:5px">
+          <button class="btn bd" onclick="setGradDir('to right',this)" style="flex:1;font-size:10px;padding:6px">→</button>
+          <button class="btn bd" onclick="setGradDir('to bottom',this)" style="flex:1;font-size:10px;padding:6px">↓</button>
+          <button class="btn bd" onclick="setGradDir('to bottom right',this)" style="flex:1;font-size:10px;padding:6px">↘</button>
+          <button class="btn bd" onclick="setGradDir('radial',this)" style="flex:1;font-size:10px;padding:6px">◎</button>
+        </div>
+      </div>
+    </div>
+    <div id="bgimage" style="display:none">
+      <button class="btn ba" onclick="document.getElementById('bgimg').click()" style="width:100%;margin-bottom:8px">🖼 CHOISIR UNE IMAGE</button>
+      <div class="fg">
+        <label class="fl">OPACITÉ: <span id="bgopval">100</span>%</label>
+        <input type="range" min="0" max="100" value="100" id="bgop" oninput="document.getElementById('bgopval').textContent=this.value;render()">
+      </div>
+    </div>
+  </div>
+
+  <!-- TEXTE -->
+  <div class="pnl" id="pnl-text">
+    <div class="fg">
+      <label class="fl">CONTENU</label>
+      <textarea class="fi" id="txtcontent" rows="2" placeholder="Ton texte ici..."></textarea>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 60px;gap:8px;margin-bottom:12px">
+      <div>
+        <label class="fl">TAILLE: <span id="txtsz">60</span>px</label>
+        <input type="range" min="12" max="200" value="60" id="txtsize" oninput="document.getElementById('txtsz').textContent=this.value">
+      </div>
+      <div><label class="fl">COULEUR</label>
+        <input type="color" value="#ffffff" id="txtcol" style="width:100%;height:36px"></div>
+    </div>
+    <div class="fg">
+      <label class="fl">STYLE DE TEXTE</label>
+      <div class="txtstyles">
+        <div class="txts on" onclick="setTxtStyle(this,'normal')" style="font-size:14px">Normal</div>
+        <div class="txts" onclick="setTxtStyle(this,'bold')" style="font-size:14px;font-weight:700">Gras</div>
+        <div class="txts" onclick="setTxtStyle(this,'bebas')" style="font-family:Impact;font-size:16px;letter-spacing:2px">IMPACT</div>
+        <div class="txts" onclick="setTxtStyle(this,'outline')" style="font-size:14px;-webkit-text-stroke:1px #fff;color:transparent">Contour</div>
+      </div>
+    </div>
+    <div class="fg">
+      <label class="fl">ALIGNEMENT</label>
+      <div style="display:flex;gap:5px;margin-bottom:10px">
+        <button class="btn bd" onclick="setTxtAlign('left',this)" style="flex:1;font-size:14px;padding:6px">⬅</button>
+        <button class="btn ba" onclick="setTxtAlign('center',this)" style="flex:1;font-size:14px;padding:6px">↔</button>
+        <button class="btn bd" onclick="setTxtAlign('right',this)" style="flex:1;font-size:14px;padding:6px">➡</button>
+      </div>
+    </div>
+    <div class="fg">
+      <label class="fl">OMBRE</label>
+      <div style="display:flex;gap:5px">
+        <button class="btn bd" id="bshadow" onclick="toggleShadow()" style="flex:1;font-size:10px;padding:7px">Ombre OFF</button>
+        <input type="color" id="shadowcol" value="#000000" style="height:36px;width:44px;border:none;border-radius:5px;padding:2px;cursor:pointer">
+      </div>
+    </div>
+    <div class="fg">
+      <label class="fl">POSITION</label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+        <div><label class="fl">X: <span id="txpx">50</span>%</label>
+          <input type="range" min="0" max="100" value="50" id="txtx" oninput="document.getElementById('txpx').textContent=this.value"></div>
+        <div><label class="fl">Y: <span id="txpy">50</span>%</label>
+          <input type="range" min="0" max="100" value="50" id="txty" oninput="document.getElementById('txpy').textContent=this.value"></div>
+      </div>
+    </div>
+    <button class="btn ba" onclick="addText()" style="width:100%;padding:11px;font-size:12px;letter-spacing:1px">+ AJOUTER LE TEXTE</button>
+  </div>
+
+  <!-- CALQUES -->
+  <div class="pnl" id="pnl-layers">
+    <div style="font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:10px;font-weight:600">CALQUES</div>
+    <div id="layerList">
+      <div style="text-align:center;padding:30px;color:var(--muted)">
+        <div style="font-size:36px;opacity:.2;margin-bottom:8px">📋</div>
+        <div style="font-size:11px;letter-spacing:2px">AUCUN CALQUE</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- IA GENERATOR -->
+  <div class="pnl" id="pnl-ai">
+    <!-- API KEY -->
+    <div id="aikey-section" style="margin-bottom:14px">
+      <label class="fl">CLÉ API CLAUDE</label>
+      <div style="display:flex;gap:6px">
+        <input class="fi" type="password" id="apikey" placeholder="sk-ant-..." style="flex:1;font-size:12px">
+        <button class="btn ba" onclick="saveKey()" style="padding:8px 10px;font-size:10px">✓ OK</button>
+      </div>
+      <div style="font-size:9px;color:var(--muted);margin-top:4px">Clé stockée localement dans ton navigateur</div>
+    </div>
+
+    <!-- PROMPT -->
+    <div class="fg">
+      <label class="fl">🎯 DÉCRIS TON VISUEL</label>
+      <textarea class="fi" id="aiprompt" rows="3" placeholder="Ex: Miniature YouTube pour une vidéo sur la cuisine ivoirienne avec du feu et des couleurs chaudes..."></textarea>
+    </div>
+
+    <!-- TYPE -->
+    <div class="fg">
+      <label class="fl">TYPE DE CONTENU</label>
+      <div class="segs">
+        <button class="segb on" data-ai="miniature" onclick="setAiType(this)">🎬 Miniature</button>
+        <button class="segb" data-ai="banniere" onclick="setAiType(this)">🖼 Bannière</button>
+        <button class="segb" data-ai="profil" onclick="setAiType(this)">👤 Profil</button>
+      </div>
+    </div>
+
+    <!-- GENERATE DESIGN -->
+    <button class="btn ba" onclick="generateDesign()" id="bgendesign" style="width:100%;padding:12px;font-size:12px;letter-spacing:1px;margin-bottom:8px">
+      🎨 GÉNÉRER LE DESIGN
+    </button>
+
+    <!-- GENERATE DESCRIPTION -->
+    <button class="btn bd" onclick="generateDesc()" id="bgendesc" style="width:100%;padding:12px;font-size:12px;letter-spacing:1px;margin-bottom:12px">
+      📝 GÉNÉRER LA DESCRIPTION
+    </button>
+
+    <!-- STATUS -->
+    <div id="aistatus" style="display:none;background:var(--s2);border:1px solid var(--border);border-radius:7px;padding:12px;margin-bottom:10px">
+      <div id="aistatustxt" style="font-size:11px;color:var(--accent);font-weight:700;letter-spacing:1px;margin-bottom:6px">⚙️ GÉNÉRATION EN COURS...</div>
+      <div id="aistatusbar" style="height:3px;background:var(--border);border-radius:2px;overflow:hidden">
+        <div id="aibar" style="height:100%;background:var(--accent);width:0%;transition:width .3s;border-radius:2px"></div>
+      </div>
+    </div>
+
+    <!-- DESCRIPTION RESULT -->
+    <div id="descresult" style="display:none">
+      <div style="font-size:10px;color:var(--green);letter-spacing:2px;font-weight:700;margin-bottom:6px">✅ DESCRIPTION GÉNÉRÉE</div>
+      <div style="background:var(--s2);border:1px solid var(--border);border-radius:6px;padding:10px;margin-bottom:8px">
+        <div id="desctitle" style="font-size:13px;font-weight:700;color:var(--accent);margin-bottom:6px"></div>
+        <div id="descbody" style="font-size:11px;color:var(--text);line-height:1.7;white-space:pre-wrap;max-height:200px;overflow-y:auto"></div>
+      </div>
+      <div style="display:flex;gap:6px">
+        <button class="btn ba" onclick="copyDesc()" style="flex:1;font-size:10px;padding:8px">📋 COPIER</button>
+        <button class="btn bd" onclick="document.getElementById('descresult').style.display='none'" style="padding:8px 10px;font-size:10px">✕</button>
+      </div>
+    </div>
+
+    <!-- HASHTAGS -->
+    <div id="hashresult" style="display:none;margin-top:8px">
+      <div style="font-size:10px;color:var(--green);letter-spacing:2px;font-weight:700;margin-bottom:6px">🏷 HASHTAGS</div>
+      <div id="hashbody" style="background:var(--s2);border:1px solid var(--border);border-radius:6px;padding:10px;font-size:11px;color:var(--blue);line-height:1.8"></div>
+      <button class="btn ba" onclick="copyHash()" style="width:100%;margin-top:6px;font-size:10px;padding:8px">📋 COPIER LES HASHTAGS</button>
+    </div>
+  </div>
+</div>
+
+<!-- NOTIF -->
+<div id="notif"></div>
+
+<script>
+// ═══ STATE ═══════════════════════════════════════════════════════════
+const cv = document.getElementById('mainCanvas');
+const ctx = cv.getContext('2d');
+const WRAP = document.getElementById('cvwrap');
+
+const S = {
+  w: 1280, h: 720, name: 'YouTube Miniature',
+  bg: { type:'solid', color:'#1a1a2e', g1:'#e63946', g2:'#4ecdc4', dir:'to right', img:null, opacity:1 },
+  layers: [], selLayer: -1,
+  tool: 'select',
+  txtStyle: 'normal', txtAlign: 'center', shadow: false,
+  gradDir: 'to right',
+  history: [],
+};
+
+// ═══ CANVAS SETUP ════════════════════════════════════════════════════
+function setupCanvas() {
+  cv.width = S.w; cv.height = S.h;
+  // Scale for display
+  const maxW = WRAP.clientWidth;
+  const maxH = 220;
+  const scale = Math.min(maxW / S.w, maxH / S.h);
+  cv.style.width = Math.round(S.w * scale) + 'px';
+  cv.style.height = Math.round(S.h * scale) + 'px';
+  document.getElementById('cvbadge').textContent = `${S.w} × ${S.h}`;
+  render();
+}
+
+// ═══ RENDER ══════════════════════════════════════════════════════════
+function render() {
+  ctx.clearRect(0, 0, S.w, S.h);
+
+  // Background
+  if (S.bg.type === 'solid') {
+    ctx.fillStyle = S.bg.color;
+    ctx.fillRect(0, 0, S.w, S.h);
+  } else if (S.bg.type === 'gradient') {
+    let grd;
+    if (S.bg.dir === 'radial') {
+      grd = ctx.createRadialGradient(S.w/2,S.h/2,0,S.w/2,S.h/2,Math.max(S.w,S.h)/2);
+    } else {
+      const dirs = { 'to right':[0,0,S.w,0], 'to bottom':[0,0,0,S.h], 'to bottom right':[0,0,S.w,S.h] };
+      const d = dirs[S.bg.dir] || [0,0,S.w,0];
+      grd = ctx.createLinearGradient(...d);
+    }
+    grd.addColorStop(0, S.bg.g1);
+    grd.addColorStop(1, S.bg.g2);
+    ctx.fillStyle = grd;
+    ctx.fillRect(0, 0, S.w, S.h);
+  } else if (S.bg.type === 'image' && S.bg.img) {
+    ctx.globalAlpha = S.bg.opacity;
+    const ir = S.bg.img.width / S.bg.img.height;
+    const cr = S.w / S.h;
+    let dx=0,dy=0,dw=S.w,dh=S.h;
+    if (ir > cr) { dh=S.h; dw=dh*ir; dx=(S.w-dw)/2; }
+    else { dw=S.w; dh=dw/ir; dy=(S.h-dh)/2; }
+    ctx.drawImage(S.bg.img, dx, dy, dw, dh);
+    ctx.globalAlpha = 1;
+  }
+
+  // Layers
+  S.layers.forEach((l, i) => {
+    if (!l.visible) return;
+    if (l.type === 'text') renderText(l, i);
+    else if (l.type === 'image') renderImage(l, i);
+    else if (l.type === 'shape') renderShape(l, i);
+  });
+}
+
+function renderText(l, idx) {
+  const x = l.x * S.w / 100;
+  const y = l.y * S.h / 100;
+  ctx.save();
+  ctx.textAlign = l.align || 'center';
+  ctx.textBaseline = 'middle';
+  const family = l.style === 'bebas' ? "Impact" : "'DM Sans'";
+  const weight = l.style === 'bold' || l.style === 'bebas' ? '700' : '400';
+  ctx.font = `${weight} ${l.size}px ${family}`;
+  if (l.shadow) {
+    ctx.shadowColor = l.shadowColor || '#000';
+    ctx.shadowBlur = l.size * 0.2;
+    ctx.shadowOffsetX = l.size * 0.04;
+    ctx.shadowOffsetY = l.size * 0.04;
+  }
+  if (l.style === 'outline') {
+    ctx.strokeStyle = l.color;
+    ctx.lineWidth = l.size * 0.04;
+    ctx.strokeText(l.text, x, y);
+  } else {
+    ctx.fillStyle = l.color;
+    ctx.fillText(l.text, x, y);
+  }
+  ctx.restore();
+  // Selection indicator
+  if (idx === S.selLayer) {
+    const m = ctx.measureText(l.text);
+    ctx.save();
+    ctx.strokeStyle = '#e63946';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([6,3]);
+    ctx.strokeRect(x - m.width/2 - 8, y - l.size/2 - 4, m.width + 16, l.size + 8);
+    ctx.restore();
+  }
+}
+
+function renderImage(l, idx) {
+  if (!l.img) return;
+  ctx.save();
+  const x = l.x * S.w / 100;
+  const y = l.y * S.h / 100;
+  const w = l.w * S.w / 100;
+  const h = l.h * S.h / 100;
+  ctx.globalAlpha = l.opacity || 1;
+  if (l.circle) {
+    ctx.beginPath();
+    ctx.arc(x, y, Math.min(w,h)/2, 0, Math.PI*2);
+    ctx.clip();
+  }
+  ctx.drawImage(l.img, x - w/2, y - h/2, w, h);
+  ctx.restore();
+  if (idx === S.selLayer) {
+    ctx.save(); ctx.strokeStyle='#e63946'; ctx.lineWidth=2; ctx.setLineDash([6,3]);
+    ctx.strokeRect(x-w/2-4, y-h/2-4, w+8, h+8); ctx.restore();
+  }
+}
+
+function renderShape(l, idx) {
+  const x = l.x * S.w / 100;
+  const y = l.y * S.h / 100;
+  const w = l.w * S.w / 100;
+  const h = l.h * S.h / 100;
+  ctx.save();
+  ctx.globalAlpha = l.opacity || 1;
+  if (l.gradient) {
+    const grd = ctx.createLinearGradient(x-w/2,y-h/2,x+w/2,y+h/2);
+    grd.addColorStop(0,l.color); grd.addColorStop(1,l.color2||'#000');
+    ctx.fillStyle=grd;
+  } else { ctx.fillStyle = l.color; }
+  if (l.shape === 'circle') {
+    ctx.beginPath(); ctx.arc(x,y,Math.min(w,h)/2,0,Math.PI*2); ctx.fill();
+  } else if (l.shape === 'triangle') {
+    ctx.beginPath(); ctx.moveTo(x,y-h/2); ctx.lineTo(x+w/2,y+h/2); ctx.lineTo(x-w/2,y+h/2); ctx.closePath(); ctx.fill();
+  } else {
+    ctx.beginPath(); ctx.roundRect(x-w/2,y-h/2,w,h,l.radius||0); ctx.fill();
+  }
+  ctx.restore();
+}
+
+// ═══ FORMAT ══════════════════════════════════════════════════════════
+function setFormat(el, w, h, name) {
+  document.querySelectorAll('.fmt').forEach(f=>f.classList.remove('on'));
+  el.classList.add('on');
+  S.w=w; S.h=h; S.name=name; S.layers=[];
+  setupCanvas(); renderLayers();
+  notify(`📐 ${name} — ${w}×${h}`);
+}
+
+// ═══ BACKGROUND ══════════════════════════════════════════════════════
+const BG_COLORS = ['#1a1a2e','#0d1117','#000000','#ffffff','#2c3e50','#e74c3c','#e67e22','#f1c40f','#2ecc71','#3498db','#9b59b6','#e91e63'];
+const GRAD_PRESETS = [
+  ['#e63946','#f4d03f'],['#4ecdc4','#44a8e0'],['#667eea','#764ba2'],
+  ['#f093fb','#f5576c'],['#4facfe','#00f2fe'],['#43e97b','#38f9d7'],
+  ['#fa709a','#fee140'],['#a18cd1','#fbc2eb'],
+];
+
+function initBG() {
+  const p = document.getElementById('bgpalette');
+  BG_COLORS.forEach(c => {
+    const s = document.createElement('div');
+    s.className = 'swatch'; s.style.background = c;
+    s.onclick = () => setBgColor(c);
+    p.appendChild(s);
+  });
+  const gp = document.getElementById('gradPresets');
+  GRAD_PRESETS.forEach(([c1,c2]) => {
+    const g = document.createElement('div');
+    g.className = 'grad';
+    g.style.background = `linear-gradient(135deg,${c1},${c2})`;
+    g.onclick = () => { S.bg.g1=c1; S.bg.g2=c2; document.getElementById('gc1').value=c1; document.getElementById('gc2').value=c2; render(); };
+    gp.appendChild(g);
+  });
+}
+
+function setBgType(type) {
+  S.bg.type = type;
+  document.getElementById('bgsolid').style.display = type==='solid'?'block':'none';
+  document.getElementById('bggradient').style.display = type==='gradient'?'block':'none';
+  document.getElementById('bgimage').style.display = type==='image'?'block':'none';
+  ['bsolid','bgrad','bimg'].forEach(id => document.getElementById(id).className='btn bd');
+  const map={'solid':'bsolid','gradient':'bgrad','image':'bimg'};
+  document.getElementById(map[type]).className='btn ba';
+  render();
+}
+function setBgColor(c) {
+  S.bg.color = c;
+  document.getElementById('bgcolorpick').value = c;
+  document.getElementById('bghex').value = c;
+  render();
+}
+function applyGradient() {
+  S.bg.g1 = document.getElementById('gc1').value;
+  S.bg.g2 = document.getElementById('gc2').value;
+  render();
+}
+function setGradDir(dir, el) {
+  S.bg.dir = dir; S.gradDir = dir;
+  document.querySelectorAll('#pnl-bg .btn.bd').forEach(b => b.style.borderColor='');
+  el.style.borderColor = 'var(--accent)';
+  render();
+}
+
+// BG Image
+document.getElementById('bgimg').addEventListener('change', e => {
+  const f = e.target.files[0]; if(!f) return;
+  const img = new Image();
+  img.onload = () => { S.bg.img = img; S.bg.type='image'; setBgType('image'); render(); notify('🖼 Image de fond chargée','ok'); };
+  img.src = URL.createObjectURL(f);
+  e.target.value='';
+});
+document.getElementById('bgop').addEventListener('input', e => {
+  S.bg.opacity = e.target.value / 100; render();
+});
+
+// ═══ TEXT ════════════════════════════════════════════════════════════
+function setTxtStyle(el, style) {
+  document.querySelectorAll('.txts').forEach(t=>t.classList.remove('on'));
+  el.classList.add('on'); S.txtStyle = style;
+}
+function setTxtAlign(align, el) {
+  document.querySelectorAll('#pnl-text .btn').forEach(b=>{
+    if(['⬅','↔','➡'].includes(b.textContent)) b.className='btn bd';
+  });
+  el.className='btn ba'; S.txtAlign = align;
+}
+function toggleShadow() {
+  S.shadow = !S.shadow;
+  document.getElementById('bshadow').textContent = S.shadow ? 'Ombre ON' : 'Ombre OFF';
+  document.getElementById('bshadow').className = S.shadow ? 'btn ba' : 'btn bd';
+}
+function addText() {
+  const content = document.getElementById('txtcontent').value.trim();
+  if (!content) { notify('Entre un texte !','err'); return; }
+  saveHistory();
+  S.layers.push({
+    id: Date.now(), type:'text', text:content,
+    size: parseInt(document.getElementById('txtsize').value),
+    color: document.getElementById('txtcol').value,
+    style: S.txtStyle, align: S.txtAlign,
+    shadow: S.shadow, shadowColor: document.getElementById('shadowcol').value,
+    x: parseInt(document.getElementById('txtx').value),
+    y: parseInt(document.getElementById('txty').value),
+    visible: true
+  });
+  render(); renderLayers(); notify('✅ Texte ajouté','ok');
+}
+
+// ═══ IMAGE LAYER ════════════════════════════════════════════════════
+document.querySelector('.tool[data-tool="image"]').addEventListener('click', () => {
+  const inp = document.createElement('input');
+  inp.type='file'; inp.accept='image/*';
+  inp.onchange = e => {
+    const f=e.target.files[0]; if(!f) return;
+    const img=new Image();
+    img.onload=()=>{
+      saveHistory();
+      S.layers.push({ id:Date.now(),type:'image',img, x:50,y:50, w:50,h:50*(img.height/img.width)*(S.w/S.h), opacity:1, circle:false, visible:true, name:f.name });
+      render(); renderLayers(); notify('🖼 Image ajoutée','ok');
+    };
+    img.src=URL.createObjectURL(f);
+  };
+  inp.click();
+});
+
+// ═══ TEMPLATES ═══════════════════════════════════════════════════════
+const TEMPLATES = [
+  { name:'Gaming Dark', bg:'#0d0d0d', layers:[
+    {type:'shape',shape:'rect',color:'#e63946',color2:'#ff6b6b',gradient:true,x:50,y:88,w:100,h:12,radius:0,opacity:1},
+    {type:'text',text:'GAMING',size:110,color:'#ffffff',style:'bebas',align:'center',x:50,y:40,shadow:true,shadowColor:'#e63946'},
+    {type:'text',text:'CHANNEL',size:46,color:'#e63946',style:'bebas',align:'center',x:50,y:68,shadow:false},
+  ]},
+  { name:'Neon Vibe', bg:'#0a0a0f', grad:['#9b59b6','#3498db'], layers:[
+    {type:'shape',shape:'circle',color:'rgba(155,89,182,0.15)',x:15,y:25,w:55,h:55,opacity:1},
+    {type:'text',text:'YOUR TITLE',size:78,color:'#ffffff',style:'bebas',align:'center',x:50,y:44,shadow:true,shadowColor:'#9b59b6'},
+    {type:'text',text:'SUBSCRIBE NOW',size:30,color:'#f4d03f',style:'bold',align:'center',x:50,y:70,shadow:false},
+  ]},
+  { name:'Minimal Rouge', bg:'#e63946', layers:[
+    {type:'shape',shape:'rect',color:'rgba(0,0,0,0.25)',x:50,y:78,w:100,h:28,radius:0,opacity:1},
+    {type:'text',text:'TITRE ICI',size:88,color:'#ffffff',style:'bebas',align:'center',x:50,y:40,shadow:false},
+    {type:'text',text:'sous-titre ici',size:28,color:'rgba(255,255,255,0.85)',style:'normal',align:'center',x:50,y:72,shadow:false},
+  ]},
+  { name:'Gold Luxury', bg:'#0d0d0d', layers:[
+    {type:'shape',shape:'rect',color:'#f4d03f',color2:'#e67e22',gradient:true,x:50,y:52,w:100,h:3,radius:0,opacity:1},
+    {type:'text',text:'LUXURY',size:100,color:'#f4d03f',style:'bebas',align:'center',x:50,y:38,shadow:true,shadowColor:'rgba(244,208,63,0.4)'},
+    {type:'text',text:'BRAND',size:100,color:'#ffffff',style:'bebas',align:'center',x:50,y:64,shadow:false},
+  ]},
+  { name:'Afrique Soleil', bg:'#1a0a00', grad:['#b7410e','#f4a01d'], layers:[
+    {type:'shape',shape:'circle',color:'rgba(244,160,29,0.15)',x:50,y:38,w:70,h:70,opacity:1},
+    {type:'text',text:'AFRIQUE',size:95,color:'#f4a01d',style:'bebas',align:'center',x:50,y:38,shadow:true,shadowColor:'#b7410e'},
+    {type:'text',text:'MON CONTENU',size:32,color:'#ffffff',style:'bold',align:'center',x:50,y:68,shadow:false},
+  ]},
+  { name:'Education', bg:'#1a237e', layers:[
+    {type:'shape',shape:'rect',color:'#ffffff',x:50,y:88,w:100,h:14,radius:0,opacity:1},
+    {type:'text',text:'COURS',size:90,color:'#ffffff',style:'bebas',align:'center',x:50,y:35,shadow:false},
+    {type:'text',text:'TITRE DU COURS',size:36,color:'#ffeb3b',style:'bold',align:'center',x:50,y:62,shadow:false},
+    {type:'text',text:'Apprendre et Reussir',size:20,color:'#1a237e',style:'normal',align:'center',x:50,y:88,shadow:false},
+  ]},
+  { name:'YouTube Vlog', bg:'#000000', layers:[
+    {type:'shape',shape:'rect',color:'#ff0000',x:50,y:88,w:100,h:14,radius:0,opacity:1},
+    {type:'text',text:'VLOG 01',size:95,color:'#ff0000',style:'bebas',align:'center',x:50,y:36,shadow:false},
+    {type:'text',text:'MA VIE EN VIDEO',size:34,color:'#ffffff',style:'bold',align:'center',x:50,y:64,shadow:false},
+    {type:'text',text:'NOUVELLE VIDEO',size:20,color:'#ffffff',style:'normal',align:'center',x:50,y:88,shadow:false},
+  ]},
+  { name:'Tech Futur', bg:'#050510', grad:['#00b4d8','#0077b6'], layers:[
+    {type:'shape',shape:'rect',color:'#00b4d8',x:50,y:8,w:100,h:3,radius:0,opacity:1},
+    {type:'shape',shape:'rect',color:'#00b4d8',x:50,y:92,w:100,h:3,radius:0,opacity:1},
+    {type:'text',text:'TECH',size:110,color:'#00b4d8',style:'bebas',align:'center',x:50,y:36,shadow:true,shadowColor:'rgba(0,180,216,0.5)'},
+    {type:'text',text:'INNOVATION 2025',size:30,color:'#ffffff',style:'bold',align:'center',x:50,y:68,shadow:false},
+  ]},
+  { name:'Nature Vert', bg:'#1b4332', layers:[
+    {type:'shape',shape:'circle',color:'rgba(52,211,153,0.1)',x:80,y:20,w:60,h:60,opacity:1},
+    {type:'text',text:'NATURE',size:100,color:'#52b788',style:'bebas',align:'center',x:50,y:38,shadow:false},
+    {type:'shape',shape:'rect',color:'#52b788',x:50,y:55,w:40,h:2,radius:0,opacity:1},
+    {type:'text',text:'Vivre en harmonie',size:28,color:'#d8f3dc',style:'normal',align:'center',x:50,y:68,shadow:false},
+  ]},
+  { name:'Podcast', bg:'#1c1c2e', layers:[
+    {type:'shape',shape:'circle',color:'#e63946',x:50,y:35,w:40,h:40,opacity:1},
+    {type:'text',text:'MON PODCAST',size:55,color:'#ffffff',style:'bebas',align:'center',x:50,y:65,shadow:false},
+    {type:'text',text:'Episode 01',size:26,color:'#e63946',style:'bold',align:'center',x:50,y:82,shadow:false},
+  ]},
+  { name:'Sport Energie', bg:'#000000', layers:[
+    {type:'shape',shape:'rect',color:'#f9c74f',color2:'#f3722c',gradient:true,x:50,y:50,w:100,h:100,radius:0,opacity:0.9},
+    {type:'text',text:'SPORT',size:115,color:'#000000',style:'bebas',align:'center',x:50,y:36,shadow:false},
+    {type:'shape',shape:'rect',color:'#000000',x:50,y:56,w:100,h:3,radius:0,opacity:1},
+    {type:'text',text:'NO LIMITS',size:44,color:'#000000',style:'bebas',align:'center',x:50,y:70,shadow:false},
+  ]},
+  { name:'Musique', bg:'#10002b', grad:['#10002b','#e0aaff'], layers:[
+    {type:'shape',shape:'circle',color:'rgba(224,170,255,0.15)',x:50,y:42,w:80,h:80,opacity:1},
+    {type:'text',text:'MA MUSIQUE',size:55,color:'#ffffff',style:'bebas',align:'center',x:50,y:65,shadow:false},
+    {type:'text',text:'Nouveau single',size:24,color:'#e0aaff',style:'normal',align:'center',x:50,y:80,shadow:false},
+  ]},
+  { name:'Business Pro', bg:'#1d3557', layers:[
+    {type:'shape',shape:'rect',color:'#e63946',x:50,y:88,w:100,h:14,radius:0,opacity:1},
+    {type:'text',text:'BUSINESS',size:90,color:'#ffffff',style:'bebas',align:'center',x:50,y:34,shadow:false},
+    {type:'text',text:'SOLUTIONS',size:90,color:'#a8dadc',style:'bebas',align:'center',x:50,y:60,shadow:false},
+    {type:'text',text:'Professionnel & Fiable',size:22,color:'#ffffff',style:'normal',align:'center',x:50,y:88,shadow:false},
+  ]},
+  { name:'Cinema', bg:'#000000', layers:[
+    {type:'shape',shape:'rect',color:'#111111',x:50,y:8,w:100,h:14,radius:0,opacity:1},
+    {type:'shape',shape:'rect',color:'#111111',x:50,y:92,w:100,h:14,radius:0,opacity:1},
+    {type:'text',text:'TITRE DU FILM',size:72,color:'#ffffff',style:'bebas',align:'center',x:50,y:44,shadow:true,shadowColor:'rgba(255,255,255,0.2)'},
+    {type:'shape',shape:'rect',color:'#f4d03f',x:50,y:56,w:30,h:2,radius:0,opacity:1},
+    {type:'text',text:'Un film de...',size:22,color:'#aaaaaa',style:'normal',align:'center',x:50,y:68,shadow:false},
+  ]},
+  { name:'Motivation', bg:'#ff6b35', grad:['#ff6b35','#f7c59f'], layers:[
+    {type:'text',text:'LA REUSSITE',size:72,color:'#ffffff',style:'bebas',align:'center',x:50,y:30,shadow:true,shadowColor:'rgba(0,0,0,0.3)'},
+    {type:'text',text:"N'ATTEND PAS",size:72,color:'#ffffff',style:'bebas',align:'center',x:50,y:52,shadow:true,shadowColor:'rgba(0,0,0,0.3)'},
+    {type:'shape',shape:'rect',color:'rgba(255,255,255,0.4)',x:50,y:62,w:60,h:2,radius:0,opacity:1},
+    {type:'text',text:'Agis maintenant',size:26,color:'rgba(255,255,255,0.9)',style:'normal',align:'center',x:50,y:74,shadow:false},
+  ]},
+  { name:"Cote d'Ivoire", bg:'#f77f00', layers:[
+    {type:'shape',shape:'rect',color:'#009a44',x:17,y:50,w:33,h:100,radius:0,opacity:1},
+    {type:'shape',shape:'rect',color:'#ffffff',x:50,y:50,w:33,h:100,radius:0,opacity:1},
+    {type:'shape',shape:'rect',color:'#f77f00',x:83,y:50,w:33,h:100,radius:0,opacity:1},
+    {type:'text',text:'MON CONTENU',size:50,color:'#ffffff',style:'bebas',align:'center',x:50,y:44,shadow:true,shadowColor:'rgba(0,0,0,0.5)'},
+    {type:'text',text:'Cote d Ivoire',size:30,color:'#ffffff',style:'bold',align:'center',x:50,y:68,shadow:true,shadowColor:'rgba(0,0,0,0.5)'},
+  ]},
+];
+
+function initTemplates() {
+  const grid = document.getElementById('tmplGrid');
+  TEMPLATES.forEach((t, idx) => {
+    const div = document.createElement('div');
+    div.className = 'tmpl';
+    const c = document.createElement('canvas');
+    c.width = 320; c.height = 180;
+    div.appendChild(c);
+    const label = document.createElement('div');
+    label.style.cssText='position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.6);padding:4px 6px;font-size:9px;font-weight:700;letter-spacing:1px;color:#fff';
+    label.textContent = t.name;
+    div.appendChild(label);
+    div.onclick = () => applyTemplate(t, div);
+    renderTemplate(c, t);
+    grid.appendChild(div);
+  });
+}
+
+function renderTemplate(c, t) {
+  const x = c.getContext('2d');
+  x.fillStyle = t.bg || '#1a1a2e';
+  x.fillRect(0,0,c.width,c.height);
+  if (t.grad) {
+    const g=x.createLinearGradient(0,0,c.width,c.height);
+    g.addColorStop(0,t.grad[0]); g.addColorStop(1,t.grad[1]);
+    x.fillStyle=g; x.fillRect(0,0,c.width,c.height);
+  }
+  t.layers.forEach(l => {
+    const sx=c.width/100, sy=c.height/100;
+    if(l.type==='shape'){
+      x.save(); x.globalAlpha=l.opacity||1;
+      if(l.gradient){const g=x.createLinearGradient(l.x*sx-l.w*sx/2,0,l.x*sx+l.w*sx/2,0);g.addColorStop(0,l.color);g.addColorStop(1,l.color2);x.fillStyle=g;}
+      else x.fillStyle=l.color;
+      if(l.shape==='circle'){x.beginPath();x.arc(l.x*sx,l.y*sy,Math.min(l.w*sx,l.h*sy)/2,0,Math.PI*2);x.fill();}
+      else{x.fillRect(l.x*sx-l.w*sx/2,l.y*sy-l.h*sy/2,l.w*sx,l.h*sy);}
+      x.restore();
+    } else if(l.type==='text'){
+      x.save();
+      const fam=l.style==='bebas'?"Impact":'DM Sans';
+      const fw=l.style==='bold'||l.style==='bebas'?'700':'400';
+      x.font=`${fw} ${l.size*c.width/1280}px ${fam}`;
+      x.textAlign=l.align||'center'; x.textBaseline='middle';
+      if(l.shadow){x.shadowColor=l.shadowColor||'#000';x.shadowBlur=10;}
+      x.fillStyle=l.color; x.fillText(l.text,l.x*sx,l.y*sy);
+      x.restore();
+    }
+  });
+}
+
+function applyTemplate(t, el) {
+  document.querySelectorAll('.tmpl').forEach(d=>d.classList.remove('on'));
+  el.classList.add('on');
+  S.bg.type='solid'; S.bg.color=t.bg||'#1a1a2e';
+  if(t.grad){S.bg.type='gradient';S.bg.g1=t.grad[0];S.bg.g2=t.grad[1];S.bg.dir='to bottom right';}
+  S.layers = t.layers.map(l=>({...l,id:Date.now()+Math.random(),visible:true}));
+  render(); renderLayers(); notify('✨ Template appliqué !','ok');
+}
+
+// ═══ LAYERS ══════════════════════════════════════════════════════════
+function renderLayers() {
+  const el = document.getElementById('layerList');
+  if (!S.layers.length) {
+    el.innerHTML='<div style="text-align:center;padding:24px;color:var(--muted)"><div style="font-size:32px;opacity:.2;margin-bottom:6px">📋</div><div style="font-size:10px;letter-spacing:2px">AUCUN CALQUE</div></div>';
+    return;
+  }
+  el.innerHTML = [...S.layers].reverse().map((l,ri)=>{
+    const i = S.layers.length-1-ri;
+    const icon = l.type==='text'?'T':l.type==='image'?'🖼':'◻';
+    const name = l.type==='text'?l.text.slice(0,16):l.name||l.type;
+    return `<div class="layer${i===S.selLayer?' on':''}" onclick="selLayer(${i})">
+      <span class="layer-icon">${icon}</span>
+      <div class="layer-info"><div class="layer-name">${name}</div><div class="layer-type">${l.type.toUpperCase()}</div></div>
+      <div style="display:flex;gap:4px">
+        <button class="btn bg" onclick="event.stopPropagation();toggleLayer(${i})" style="padding:4px 7px;font-size:11px">${l.visible?'👁':'🙈'}</button>
+        <button class="btn bg" onclick="event.stopPropagation();moveLayer(${i},-1)" style="padding:4px 7px;font-size:11px">↑</button>
+        <button class="btn bg" onclick="event.stopPropagation();moveLayer(${i},1)" style="padding:4px 7px;font-size:11px">↓</button>
+        <button onclick="event.stopPropagation();rmLayer(${i})" style="background:transparent;border:1px solid var(--danger);color:var(--danger);border-radius:4px;padding:4px 7px;font-size:10px;cursor:pointer">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function selLayer(i){ S.selLayer=i; render(); renderLayers(); }
+function toggleLayer(i){ S.layers[i].visible=!S.layers[i].visible; render(); renderLayers(); }
+function rmLayer(i){ saveHistory(); S.layers.splice(i,1); if(S.selLayer>=S.layers.length) S.selLayer=-1; render(); renderLayers(); }
+function moveLayer(i,d){ if(i+d<0||i+d>=S.layers.length) return; saveHistory(); [S.layers[i],S.layers[i+d]]=[S.layers[i+d],S.layers[i]]; render(); renderLayers(); }
+function clearLayers(){ saveHistory(); S.layers=[]; S.selLayer=-1; render(); renderLayers(); notify('Calques supprimés'); }
+
+// ═══ TOOL ════════════════════════════════════════════════════════════
+function setTool(el, tool) {
+  document.querySelectorAll('.tool').forEach(t=>t.classList.remove('on'));
+  el.classList.add('on'); S.tool=tool;
+  if(tool==='text') switchTab('text');
+  else if(tool==='bg') switchTab('bg');
+}
+
+// ═══ TABS ════════════════════════════════════════════════════════════
+function switchTab(name){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.dataset.t===name));
+  document.querySelectorAll('.pnl').forEach(p=>p.classList.toggle('on',p.id==='pnl-'+name));
+}
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>switchTab(t.dataset.t)));
+
+// ═══ HISTORY ════════════════════════════════════════════════════════
+function saveHistory(){ S.history.push(JSON.stringify({layers:[...S.layers.map(l=>({...l,img:null}))],bg:{...S.bg,img:null}})); if(S.history.length>20) S.history.shift(); }
+function undo(){ if(!S.history.length){notify('Rien à annuler');return;} const prev=JSON.parse(S.history.pop()); S.layers=prev.layers; render(); renderLayers(); notify('↩ Annulé'); }
+
+// ═══ EXPORT ══════════════════════════════════════════════════════════
+function exportImg() {
+  const a = document.createElement('a');
+  a.download = S.name.replace(/ /g,'_') + '.png';
+  a.href = cv.toDataURL('image/png', 1.0);
+  a.click();
+  notify('⬇ Image exportée !', 'ok');
+}
+
+// ═══ NOTIF ═══════════════════════════════════════════════════════════
+let nt;
+function notify(msg, type='info') {
+  const el=document.getElementById('notif');
+  el.textContent=msg; el.style.display='block';
+  el.style.background=type==='err'?'var(--danger)':type==='ok'?'var(--green)':'var(--accent)';
+  el.style.color='#fff';
+  clearTimeout(nt); nt=setTimeout(()=>el.style.display='none',3000);
+}
+
+
+// ═══ IA GENERATOR ════════════════════════════════════════════════════
+let AI_TYPE = 'miniature';
+let generatedDesc = '';
+let generatedHash = '';
+
+function setAiType(b) {
+  document.querySelectorAll('[data-ai]').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on'); AI_TYPE = b.dataset.ai;
+}
+
+function saveKey() {
+  const k = document.getElementById('apikey').value.trim();
+  if (!k) return;
+  localStorage.setItem('claude_key', k);
+  notify('✓ Clé API sauvegardée', 'ok');
+}
+
+function getKey() {
+  const stored = localStorage.getItem('claude_key');
+  if (stored) document.getElementById('apikey').value = stored;
+  return stored || document.getElementById('apikey').value.trim();
+}
+
+function showAiStatus(msg, pct) {
+  document.getElementById('aistatus').style.display = 'block';
+  document.getElementById('aistatustxt').textContent = '⚙️ ' + msg;
+  document.getElementById('aibar').style.width = pct + '%';
+}
+function hideAiStatus() { document.getElementById('aistatus').style.display = 'none'; }
+
+async function callClaude(prompt, systemPrompt) {
+  const key = getKey();
+  if (!key) { notify('Entre ta clé API Claude', 'err'); return null; }
+  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': key,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 1000,
+      system: systemPrompt,
+      messages: [{ role: 'user', content: prompt }]
+    })
+  });
+  if (!resp.ok) {
+    const err = await resp.json();
+    throw new Error(err.error?.message || 'Erreur API');
+  }
+  const data = await resp.json();
+  return data.content[0].text;
+}
+
+async function generateDesign() {
+  const prompt = document.getElementById('aiprompt').value.trim();
+  if (!prompt) { notify('Décris ton visuel', 'err'); return; }
+  document.getElementById('bgendesign').disabled = true;
+  showAiStatus('IA analyse ta demande...', 30);
+  try {
+    const systemPrompt = `Tu es un expert en design graphique. Génère un design en JSON UNIQUEMENT, sans aucun texte avant ou après, sans backticks.
+Structure JSON obligatoire:
+{"bg":{"type":"solid","color":"#hex"},"layers":[{"type":"text","text":"TITRE","size":90,"color":"#ffffff","style":"bold","align":"center","x":50,"y":40,"shadow":false}]}
+Règles importantes:
+- bg.type peut être "solid" (avec color) ou "gradient" (avec g1, g2, dir)
+- dir peut être: "to right", "to bottom", "to bottom right"  
+- layers: tableau de 2 à 4 éléments
+- type "text": text(string), size(60-120), color(#hex), style("bold" ou "normal"), align("center"), x(0-100), y(0-100), shadow(bool)
+- type "shape": shape("rect" ou "circle"), color(#hex), x(0-100), y(0-100), w(10-100), h(5-100), opacity(0.1-1)
+- x et y sont des pourcentages de position sur le canvas
+- Le texte principal doit avoir size entre 80 et 120
+- Réponds UNIQUEMENT avec le JSON, rien d autre`;
+
+    const result = await callClaude(
+      `Design ${AI_TYPE} pour: "${prompt}". JSON uniquement.`,
+      systemPrompt
+    );
+    showAiStatus('Application du design...', 80);
+    
+    // Clean and parse JSON
+    let clean = result.trim();
+    // Remove markdown code blocks if present
+    clean = clean.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim();
+    // Find JSON object
+    const jsonStart = clean.indexOf('{');
+    const jsonEnd = clean.lastIndexOf('}');
+    if (jsonStart >= 0 && jsonEnd > jsonStart) {
+      clean = clean.substring(jsonStart, jsonEnd + 1);
+    }
+    
+    const design = JSON.parse(clean);
+    
+    // Apply background
+    if (design.bg) {
+      if (design.bg.type === 'gradient' && design.bg.g1 && design.bg.g2) {
+        S.bg.type = 'gradient';
+        S.bg.g1 = design.bg.g1;
+        S.bg.g2 = design.bg.g2;
+        S.bg.dir = design.bg.dir || 'to right';
+      } else if (design.bg.color) {
+        S.bg.type = 'solid';
+        S.bg.color = design.bg.color;
+      }
+    }
+    
+    // Apply layers
+    if (design.layers && design.layers.length > 0) {
+      S.layers = design.layers.map((l, i) => ({
+        ...l,
+        id: Date.now() + i,
+        visible: true,
+        size: l.size || 80,
+        color: l.color || '#ffffff',
+        opacity: l.opacity || 1,
+        x: l.x || 50,
+        y: l.y || 50,
+        align: l.align || 'center',
+        style: l.style || 'bold',
+        shadow: l.shadow || false,
+        shadowColor: l.shadowColor || '#000000'
+      }));
+    }
+    
+    // Render
+    render();
+    renderLayers();
+    hideAiStatus();
+    notify('✅ Design IA généré !', 'ok');
+    
+  } catch(e) {
+    hideAiStatus();
+    console.error('AI Error:', e);
+    notify('Erreur IA: ' + e.message.slice(0, 50), 'err');
+  }
+  document.getElementById('bgendesign').disabled = false;
+}
+
+async function generateDesc() {
+  const prompt = document.getElementById('aiprompt').value.trim();
+  if (!prompt) { notify('Décris ton contenu', 'err'); return; }
+  document.getElementById('bgendesc').disabled = true;
+  showAiStatus('Génération de la description...', 30);
+  try {
+    const systemPrompt = `Tu es un expert en marketing digital pour les créateurs de contenu africains francophones.
+Tu génères des descriptions et hashtags optimisés pour YouTube, Instagram, TikTok.
+Réponds UNIQUEMENT en JSON avec cette structure:
+{"title": "titre accrocheur", "description": "description complète 150-300 mots", "hashtags": ["#tag1", "#tag2", ...15 hashtags max]}
+Pas de backticks, pas d'explication, juste le JSON.`;
+
+    const result = await callClaude(
+      `Génère une description ${AI_TYPE} pour: "${prompt}". Public cible: Afrique francophone.`,
+      systemPrompt
+    );
+    showAiStatus('Finalisation...', 90);
+    const clean = result.replace(/```json|```/g, '').trim();
+    const data = JSON.parse(clean);
+    generatedDesc = data.title + '\n\n' + data.description;
+    generatedHash = data.hashtags.join(' ');
+    document.getElementById('desctitle').textContent = data.title;
+    document.getElementById('descbody').textContent = data.description;
+    document.getElementById('descresult').style.display = 'block';
+    document.getElementById('hashbody').textContent = data.hashtags.join(' ');
+    document.getElementById('hashresult').style.display = 'block';
+    hideAiStatus();
+    notify('✅ Description générée !', 'ok');
+  } catch(e) {
+    hideAiStatus();
+    notify('Erreur: ' + e.message.slice(0, 40), 'err');
+  }
+  document.getElementById('bgendesc').disabled = false;
+}
+
+function copyDesc() {
+  navigator.clipboard.writeText(generatedDesc).then(()=>notify('📋 Description copiée !','ok')).catch(()=>{
+    const ta = document.createElement('textarea');
+    ta.value = generatedDesc; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    notify('📋 Copié !', 'ok');
+  });
+}
+function copyHash() {
+  navigator.clipboard.writeText(generatedHash).then(()=>notify('📋 Hashtags copiés !','ok')).catch(()=>{
+    const ta = document.createElement('textarea');
+    ta.value = generatedHash; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    notify('📋 Copié !', 'ok');
+  });
+}
+
+// Auto-load saved key
+window.addEventListener('load', () => { getKey(); });
+
+// ═══ INIT ════════════════════════════════════════════════════════════
+initBG();
+initTemplates();
+setupCanvas();
+window.addEventListener('resize', setupCanvas);
+</script>
+</body>
+</html>
